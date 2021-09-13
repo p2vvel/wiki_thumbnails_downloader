@@ -1,3 +1,5 @@
+'''Links to wikipedia stolen from ergast db[ergast.com], most of them are useless in this file, but im gonna make use of then later 😎 (emoji xd)'''
+
 drivers_links = [
     'http://en.wikipedia.org/wiki/Lewis_Hamilton',
     'http://en.wikipedia.org/wiki/Nick_Heidfeld',
