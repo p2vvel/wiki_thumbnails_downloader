@@ -201,5 +201,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    # article = WikiArticle("https://pl.wikipedia.org/wiki/Sebastian_Vettel", 500)
-    # show_article("https://pl.wikipedia.org/wiki/Sebastian_Vettel", 500, "original", "")
