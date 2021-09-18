@@ -143,11 +143,11 @@ class AllTests(TestCase):
         articles = [
             'https://en.wikipedia.org/wiki/1951_Formula_One_season',
             "https://pl.wikipedia.org/wiki/Shrek",
-            "https://pl.wikipedia.org/wiki/Kanye_West"
+            "https://szl.wikipedia.org/wiki/Lipy_(Prudnik)"
         ]
         subdomains = ["en", "pl", "szl"]
 
-        for l, s in zip(links, subdomains):
+        for l, s in zip(articles, subdomains):
             try:
                 article = WikiArticle(l, 500)
                 self.assertEqual(s, article.localisation)
