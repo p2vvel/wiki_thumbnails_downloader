@@ -2,6 +2,11 @@ import requests
 from requests.models import Response
 
 
+
+#TODO: write more tests
+#TODO: improve exceptions messages
+
+
 class ArticleException(Exception):
     pass
 
@@ -16,11 +21,11 @@ class WikiArticle:
         title = image_url[image_url.rindex("/") + 1:]
         return title
 
-
     def __init__(self, url, thumbsize, user_agent=""):
         self.thumbsize = thumbsize
         self.url = url
-        self.localisation = url[url.index("://") + 3 : url.index(".")]  #'pl', 'en', 'com' etc.
+        self.localisation = url[url.index("://") +
+                                3:url.index(".")]  #'pl', 'en', 'com' etc.
         self.header = {
             "User-Agent": user_agent
         } if user_agent else {
@@ -62,12 +67,17 @@ class WikiArticle:
     def get_thumbnail_data(self):
         try:
             page_id = [k for k in self.api_json["query"]["pages"].keys()][0]
+
+            if int(page_id) == -1:
+                raise ArticleException("No article with such url!")
             thumbnail = self.api_json["query"]["pages"][page_id]["thumbnail"]
             return thumbnail
         except KeyError:
             raise ArticleException(
                 "Article without thumbnail or API didnt returned any thumbnail data!"
             )
+        except Exception as e:
+            raise e
 
     def get_thumbnail_url(self):
         return self.thumbnail_data["source"]
@@ -80,48 +90,49 @@ class WikiArticle:
             url = url[:url.rindex("/")]
         return url
 
-    def save_thumbnail(self, filename = ""):
+    def save_thumbnail(self, filename=""):
         #saves thumbnail as file, locally
         image_url = self.get_thumbnail_url()
         if filename == "":
             filename = WikiArticle.title_from_link(image_url)
         else:
-            extension = image_url[image_url.rindex("."):]   #file extension is at the end of the url
-            filename = filename + extension #adding extension even if user has added one - for safety
+            extension = image_url[image_url.rindex(
+                "."):]  #file extension is at the end of the url
+            filename = filename + extension  #adding extension even if user has added one - for safety
 
         response = requests.get(image_url, headers=self.header)
         with open(filename, "wb") as file:
             file.write(response.content)
 
-    def save_original_thumbnail(self, filename = ""):
+    def save_original_thumbnail(self, filename=""):
         #saves fullsize thumbnail as file, locally
         image_url = self.get_original_thumbnail_url()
         if filename == "":
             filename = WikiArticle.title_from_link(image_url)
         else:
-            extension = image_url[image_url.rindex("."):]   #file extension is at the end of the url
-            filename = filename + extension #adding extension even if user has added one - for safety
+            extension = image_url[image_url.rindex(
+                "."):]  #file extension is at the end of the url
+            filename = filename + extension  #adding extension even if user has added one - for safety
 
         response = requests.get(image_url, headers=self.header)
         with open(filename, "wb") as file:
             file.write(response.content)
 
 
-def show_article(url, size, type, **kwargs):
-    article = WikiArticle(url, size)
+def show_article(url, size, type, user_agent, **kwargs):
+    article = WikiArticle(url, size, user_agent)
     if type == "thumbnail":
         print(article.get_thumbnail_url())
     elif type == "original":
         print(article.get_original_thumbnail_url())
 
 
-def save_article(url, size, type, filename, **kwargs):
-    article = WikiArticle(url, size)
-    if type=="thumbnail":
+def save_article(url, size, type, filename, user_agent, **kwargs):
+    article = WikiArticle(url, size, user_agent)
+    if type == "thumbnail":
         article.save_thumbnail(filename)
     else:
         article.save_original_thumbnail(filename)
-    
 
 
 def main():
@@ -148,7 +159,12 @@ def main():
         choices=["original", "thumbnail"],
         default="thumbnail",
         help="choose between thumbnail or original image")
+    show_subparser.add_argument(
+        "--user_agent",
+        default="",
+        help="user agent used in program, might be necessary if default doesnt work")
     show_subparser.set_defaults(func=show_article)
+
 
     save_subparser = subparsers.add_parser("save", help="save thumbnail")
     save_subparser.add_argument("--url",
@@ -165,6 +181,10 @@ def main():
         choices=["original", "thumbnail"],
         default="thumbnail",
         help="choose between thumbnail or original image")
+    save_subparser.add_argument(
+        "--user_agent",
+        default="",
+        help="user agent used in program, might be necessary if default doesnt work")
     save_subparser.add_argument("--filename",
                                 type=str,
                                 default="",
@@ -176,4 +196,6 @@ def main():
 
 
 if __name__ == "__main__":
-   main()
+    main()
+    # article = WikiArticle("https://pl.wikipedia.org/wiki/Sebastian_Vettel", 500)
+    # show_article("https://pl.wikipedia.org/wiki/Sebastian_Vettel", 500, "original", "")
