@@ -44,7 +44,7 @@ class AllTests(TestCase):
         '''tests if api urls are correct'''
         for k in get_links(2):
             try:
-                article = WikiArticle(k)
+                article = WikiArticle(k, 500)
                 response = requests.get(article.api_url)
                 self.assertEqual(response.status_code, 200)
             except ArticleException as e:
@@ -54,7 +54,7 @@ class AllTests(TestCase):
         '''tests if urls for thumbnails are scrapped correctly'''
         for k in get_links(2):
             try:
-                article = WikiArticle(k)
+                article = WikiArticle(k, 500)
                 response = requests.get(
                     article.get_thumbnail_url(),
                     headers={
@@ -71,7 +71,7 @@ class AllTests(TestCase):
         '''tests if urls for fullsize thumbnails are scrapped correctly'''
         for k in get_links(2):
             try:
-                article = WikiArticle(k)
+                article = WikiArticle(k, 500)
                 response = requests.get(
                     article.get_original_thumbnail_url(),
                     headers={
@@ -114,8 +114,9 @@ class AllTests(TestCase):
         for url, name in zip(articles, names):
             article = WikiArticle(url, 500)
             article.save_thumbnail(name)
-            temp = WikiArticle.title_from_link(article.get_thumbnail_url())
-            file_data = open(temp, "rb").read()  #wczytuje plik
+            extension = article.get_thumbnail_url()
+            extension = extension[extension.rindex("."):]
+            file_data = open(name + extension, "rb").read()  #wczytuje plik
             img_data = requests.get(article.get_thumbnail_url(), headers=article.header).content
             self.assertEqual(file_data, img_data)
 
