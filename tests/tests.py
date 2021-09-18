@@ -6,6 +6,8 @@ from links import *
 
 import requests
 
+import os
+
 
 def get_links(amount=10):
     '''returns some links to wiki articles'''
@@ -100,8 +102,9 @@ class AllTests(TestCase):
             file_data = open(WikiArticle.title_from_link(article.get_thumbnail_url()), "rb").read()  #wczytuje plik
             img_data = requests.get(article.get_thumbnail_url(), headers=article.header).content
             self.assertEqual(file_data, img_data)
+            os.remove(WikiArticle.title_from_link(article.get_thumbnail_url()))
 
-    def test_saving_thumbnails_no_filename(self):
+    def test_saving_thumbnails_filename(self):
         '''tests if saving thumbnails works properly'''
         articles = [
             'https://en.wikipedia.org/wiki/1951_Formula_One_season',
@@ -119,6 +122,7 @@ class AllTests(TestCase):
             file_data = open(name + extension, "rb").read()  #wczytuje plik
             img_data = requests.get(article.get_thumbnail_url(), headers=article.header).content
             self.assertEqual(file_data, img_data)
+            os.remove(name + extension)
 
 
     def test_links_to_title(self):
