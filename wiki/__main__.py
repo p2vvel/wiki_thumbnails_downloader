@@ -192,8 +192,12 @@ def main():
     save_subparser.set_defaults(func=save_article)
 
     args = parser.parse_args()
-    args.func(**args.__dict__)
 
+    if len(sys.argv) == 1:
+        parser.print_help()
+    else:
+        args.func(**args.__dict__)
+    
 
 if __name__ == "__main__":
     main()
